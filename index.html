@@ -1263,11 +1263,11 @@
       '<div class="banner warn"><span>⚠️</span><div>Sem conexão com a planilha de dados no momento. Os dados não estão sendo salvos nem atualizados — confira sua internet, ou clique em "Reconfigurar conexão" abaixo.</div></div>' : '';
     return '' +
       orgBanner +
-      '<div class="banner"><span>🔒</span><div><b>Importante sobre compartilhamento:</b> os dados deste painel ficam guardados numa planilha Google, acessada através da URL e da chave de acesso configuradas no navegador de cada pessoa (veja o card "Conexão com os dados" mais abaixo). Quem tiver essas duas informações consegue ler e editar os dados — trate-as como uma senha e não as publique em grupos abertos.</div></div>' +
+      '<div class="banner"><span>🔒</span><div><b>Importante sobre compartilhamento:</b> os dados deste painel ficam guardados numa planilha Google, acessada através de uma URL e uma chave de acesso já embutidas no painel (conecta sozinho em qualquer aparelho). Quem tiver acesso ao código deste site consegue ler essas informações — evite deixar o repositório público, ou troque a chave se precisar revogar o acesso de alguém (veja o card "Conexão com os dados" mais abaixo).</div></div>' +
       '<div class="card">' +
         '<div class="card-head"><h2>Conexão com os dados</h2><span class="hint">planilha Google via Apps Script</span></div>' +
-        '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 12px;">' + (state.dbAvailable ? 'Conectado — os dados sincronizam automaticamente a cada alguns segundos.' : 'Não conectado.') + '</p>' +
-        '<button class="btn" id="btn-reconfigurar-conexao">Reconfigurar conexão</button>' +
+        '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 12px;">' + (state.dbAvailable ? 'Conectado automaticamente — os dados sincronizam a cada alguns segundos.' : 'Não conectado.') + '</p>' +
+        '<button class="btn" id="btn-reconfigurar-conexao">Usar outra URL/chave neste navegador</button>' +
       '</div>' +
       '<div class="card">' +
         '<div class="card-head"><h2>Dados do candidato</h2></div>' +
@@ -1718,10 +1718,15 @@
   // o campo na tela de conexão para cada pessoa não precisar copiar/colar; a chave de
   // acesso continua sendo digitada por cada uma, nunca fica gravada no código.
   var GAS_URL_PADRAO = 'https://script.google.com/macros/s/AKfycbyQB9kvN2qQhFyv3x81AlvSLnJK936KWvHiisocrlKQ7stCaPuQ9XedW9Q2wDxU4-BDgg/exec';
+  // Chave de acesso já embutida a pedido da campanha, para conectar sozinho em qualquer
+  // aparelho sem pedir nada. Troca-off ciente: quem abrir o código-fonte deste repositório
+  // (por exemplo, se ele for público no GitHub) consegue ver esta chave. Se o repositório
+  // for privado, ou se decidir trocar a chave depois, é só atualizar o valor abaixo.
+  var GAS_TOKEN_PADRAO = 'fabricio36222';
 
   function iniciarConexao() {
-    var url = safeLocalGet(GAS_URL_KEY);
-    var token = safeLocalGet(GAS_TOKEN_KEY);
+    var url = safeLocalGet(GAS_URL_KEY) || GAS_URL_PADRAO;
+    var token = safeLocalGet(GAS_TOKEN_KEY) || GAS_TOKEN_PADRAO;
     if (!url || !token) { mostrarTelaConexao(); return; }
     conectar(url, token);
   }
@@ -1739,11 +1744,11 @@
     var root = document.getElementById('setup-root');
     if (!root) return;
     var urlSalva = safeLocalGet(GAS_URL_KEY) || GAS_URL_PADRAO || '';
-    var tokenSalvo = safeLocalGet(GAS_TOKEN_KEY) || '';
+    var tokenSalvo = safeLocalGet(GAS_TOKEN_KEY) || GAS_TOKEN_PADRAO || '';
     root.innerHTML =
       '<div class="setup-screen"><div class="card setup-card">' +
         '<h2 style="margin-bottom:8px;">Conectar ao banco de dados</h2>' +
-        '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 16px;">Este painel guarda os dados numa planilha Google, através de um Web App do Apps Script. A URL já vem preenchida abaixo; falta só colar a chave de acesso combinada com quem configurou a planilha (veja o README do repositório). Isso fica salvo só neste navegador — cada pessoa da equipe faz esse passo uma vez.</p>' +
+        '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 16px;">Normalmente o painel conecta sozinho. Esta tela só aparece se algo impediu a conexão automática — confira os campos abaixo (veja o README do repositório) e clique em Conectar.</p>' +
         (erro ? '<div class="banner warn" style="margin-bottom:14px;"><span>⚠️</span><div>' + esc(erro) + '</div></div>' : '') +
         '<div class="field"><label for="setup-url">URL do Web App (Apps Script)</label><textarea id="setup-url" rows="2" placeholder="https://script.google.com/macros/s/AKfycb.../exec">' + esc(urlSalva) + '</textarea></div>' +
         '<div class="field"><label for="setup-token">Chave de acesso</label><input type="text" id="setup-token" value="' + esc(tokenSalvo) + '" placeholder="a mesma chave definida em Code.gs"></div>' +
