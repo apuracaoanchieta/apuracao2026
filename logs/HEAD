@@ -1,5 +1,0 @@
-0000000000000000000000000000000000000000 df06181d5cb7dfcec6e5892c899c24ab6552d5dd Central de Apuração <noreply@example.com> 1788221233 +0000	commit (initial): Versão para hospedagem externa (GitHub Pages + Google Sheets/Apps Script)
-df06181d5cb7dfcec6e5892c899c24ab6552d5dd 0000000000000000000000000000000000000000 Claude <noreply@anthropic.com> 1788221242 +0000	Branch: renamed refs/heads/master to refs/heads/main
-0000000000000000000000000000000000000000 df06181d5cb7dfcec6e5892c899c24ab6552d5dd Claude <noreply@anthropic.com> 1788221242 +0000	Branch: renamed refs/heads/master to refs/heads/main
-df06181d5cb7dfcec6e5892c899c24ab6552d5dd 357c896b78f635394468a3cf8790caac699ea257 Central de Apuração <campanha@example.com> 1788222759 +0000	commit: Pré-preenche a URL do Web App na tela de conexão
-357c896b78f635394468a3cf8790caac699ea257 ccd56e5351eb130bfb21de0873f5b5a4d73b9022 Central de Apuração <campanha@example.com> 1788224091 +0000	commit: Conecta automaticamente em qualquer aparelho, sem tela de configuração
