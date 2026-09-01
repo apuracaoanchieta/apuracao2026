@@ -1,0 +1,6 @@
+Pré-preenche a URL do Web App na tela de conexão
+
+A URL do Web App já implantado fica como valor padrão sugerido no
+campo da tela de conexão (não é segredo por si só — sem a chave de
+acesso ninguém lê ou grava dados). A chave de acesso continua sendo
+digitada por cada pessoa e nunca fica gravada no código-fonte.
