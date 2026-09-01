@@ -1,0 +1,21 @@
+Usa o schema oficial confirmado nos PDFs técnicos do TSE (EA20/EA11/EA12)
+
+Li os documentos técnicos oficiais do TSE (aba Documentos da página de
+divulgação de resultados 2026) para os arquivos EA10/EA11/EA12/EA15/
+EA20. O EA20 (resultado unificado) confirma os nomes de campo reais:
+candidato tem n/nm/nmu/st/vap/pvap; partido tem n/sg/nm e os pares
+tvan+tval (votos computados) / tvtn+tvtl (votos válidos). Também
+confirma o código de cargo 0007 para Deputado Estadual e a terminação
+de arquivo -u.json (não -r.json, como eu tinha assumido antes a
+partir de repositórios de eleições passadas).
+
+Reescrevi normalizarResultadoTSE_ no Code.gs para ler esses campos
+diretamente, tratando tanto o formato aninhado descrito na
+especificação (candidatos dentro de cada partido, par[].cand[]) quanto
+um formato solto como reserva. Adicionei a situação do candidato (st)
+como coluna extra na prévia da aba Apuração Oficial, só para contexto
+— não é salva no painel.
+
+Testado com um harness Node isolando as funções puras de normalização
+(sem SpreadsheetApp/UrlFetchApp): formato aninhado, formato solto, e
+entrada não reconhecida (deve lançar erro claro) — os três passaram.

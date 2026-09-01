@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 df06181d5cb7dfcec6e5892c899c24ab6552d5dd Central de Apuração <noreply@example.com> 1788221233 +0000	commit (initial): Versão para hospedagem externa (GitHub Pages + Google Sheets/Apps Script)
+df06181d5cb7dfcec6e5892c899c24ab6552d5dd df06181d5cb7dfcec6e5892c899c24ab6552d5dd Claude <noreply@anthropic.com> 1788221242 +0000	Branch: renamed refs/heads/master to refs/heads/main
+df06181d5cb7dfcec6e5892c899c24ab6552d5dd 357c896b78f635394468a3cf8790caac699ea257 Central de Apuração <campanha@example.com> 1788222759 +0000	commit: Pré-preenche a URL do Web App na tela de conexão
+357c896b78f635394468a3cf8790caac699ea257 ccd56e5351eb130bfb21de0873f5b5a4d73b9022 Central de Apuração <campanha@example.com> 1788224091 +0000	commit: Conecta automaticamente em qualquer aparelho, sem tela de configuração
+ccd56e5351eb130bfb21de0873f5b5a4d73b9022 c288c4709f320b1238606fa672f01566e608eada Central de Apuração <campanha@example.com> 1788226472 +0000	commit: Adiciona busca automática dos resultados oficiais no TSE
+c288c4709f320b1238606fa672f01566e608eada 832b02d08bc7aaf371d733e1cfe6e42ec491977e Central de Apuração <campanha@example.com> 1788231571 +0000	commit: Corrige a integração com o TSE com base na documentação oficial (FAQ)
+832b02d08bc7aaf371d733e1cfe6e42ec491977e 2ff866c54e9a32bab02bff308c89b15ad2b780a1 Central de Apuração <campanha@example.com> 1788232041 +0000	commit: Usa o schema oficial confirmado nos PDFs técnicos do TSE (EA20/EA11/EA12)
