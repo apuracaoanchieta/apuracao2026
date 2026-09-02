@@ -1,21 +1,31 @@
-Usa o schema oficial confirmado nos PDFs técnicos do TSE (EA20/EA11/EA12)
+Corrige perda de dados digitados: re-render apagava campos em edição
 
-Li os documentos técnicos oficiais do TSE (aba Documentos da página de
-divulgação de resultados 2026) para os arquivos EA10/EA11/EA12/EA15/
-EA20. O EA20 (resultado unificado) confirma os nomes de campo reais:
-candidato tem n/nm/nmu/st/vap/pvap; partido tem n/sg/nm e os pares
-tvan+tval (votos computados) / tvtn+tvtl (votos válidos). Também
-confirma o código de cargo 0007 para Deputado Estadual e a terminação
-de arquivo -u.json (não -r.json, como eu tinha assumido antes a
-partir de repositórios de eleições passadas).
+Achado o bug real por trás de "o sistema não está permitindo o
+preenchimento": o painel faz polling do backend a cada 6 segundos, e
+notificarTodos() disparava TODOS os listeners (e portanto um
+renderAll() completo, que recria o HTML da página inteira) em todo
+ciclo de polling, mesmo quando nada tinha mudado nos dados. Como os
+campos de formulário (ex: "Lançar / atualizar um partido") não são
+controlados por estado, cada re-render os recriava vazios — então
+qualquer pessoa digitando por mais de ~6 segundos via seu texto
+apagado no meio da digitação.
 
-Reescrevi normalizarResultadoTSE_ no Code.gs para ler esses campos
-diretamente, tratando tanto o formato aninhado descrito na
-especificação (candidatos dentro de cada partido, par[].cand[]) quanto
-um formato solto como reserva. Adicionei a situação do candidato (st)
-como coluna extra na prévia da aba Apuração Oficial, só para contexto
-— não é salva no painel.
+Duas correções:
+1. notificarTodos() agora compara o JSON de cada parte (config,
+   histórico, oficial, candidatosPartido, fiscais) com o último valor
+   visto e só notifica os listeners daquilo que realmente mudou — a
+   maioria dos ciclos de polling agora não re-renderiza nada.
+2. Rede de segurança: se um render for pedido enquanto o foco está
+   num campo de texto/textarea (por exemplo, uma mudança real feita
+   por outro fiscal bem no instante em que alguém está digitando),
+   o render é adiado até a pessoa sair do campo (blur), em vez de
+   apagar o que ela estava escrevendo.
 
-Testado com um harness Node isolando as funções puras de normalização
-(sem SpreadsheetApp/UrlFetchApp): formato aninhado, formato solto, e
-entrada não reconhecida (deve lançar erro claro) — os três passaram.
+Testado com um harness jsdom simulando exatamente o cenário
+reportado: digitar num campo, um poll sem mudança de dados (campo
+deve permanecer intacto), um poll com mudança real de dados enquanto
+ainda focado (render deve ser adiado, campo intacto), e blur (o dado
+novo deve aparecer). Os quatro comportamentos passaram.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_014EZXNHkZSsPhxKDC29LUYy

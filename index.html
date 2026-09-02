@@ -846,7 +846,36 @@
   }
 
   /* ---------------- render principal ---------------- */
+  // renderAll() reconstrói a página inteira a partir do zero (main.innerHTML = ...), o que
+  // apaga qualquer coisa digitada num campo de texto naquele instante. A correção principal
+  // é notificarTodos() só avisar quando algo de fato mudou (menos re-renders no total), mas
+  // como rede de segurança extra: se a pessoa estiver com o cursor num campo de texto/área de
+  // texto quando um render for pedido (por exemplo, uma mudança feita por outro fiscal ao
+  // mesmo tempo), adiamos o render até ela sair do campo, em vez de apagar o que ela digitou.
+  var renderPendente = false;
+  function ehCampoDeTexto(el) {
+    if (!el) return false;
+    if (el.tagName === 'TEXTAREA') return true;
+    if (el.tagName === 'INPUT') {
+      var tipo = (el.type || 'text').toLowerCase();
+      return ['text', 'number', 'search', 'email', 'tel', 'url', 'password'].indexOf(tipo) !== -1;
+    }
+    return false;
+  }
   function renderAll() {
+    if (ehCampoDeTexto(document.activeElement)) { renderPendente = true; return; }
+    renderPendente = false;
+    renderAllAgora();
+  }
+  document.addEventListener('focusout', function () {
+    setTimeout(function () {
+      if (renderPendente && !ehCampoDeTexto(document.activeElement)) {
+        renderPendente = false;
+        renderAllAgora();
+      }
+    }, 50);
+  });
+  function renderAllAgora() {
     renderTabs();
     renderStatusChip();
     var main = document.getElementById('main');
@@ -1877,11 +1906,28 @@
     function apiGetTSE() {
       return fetch(montarUrl({ action: 'tse', token: token })).then(function (r) { return r.json(); });
     }
+    // Guarda o último JSON de cada parte pra só notificar (e disparar re-render) quando
+    // algo realmente mudou — sem isso, cada ciclo de polling (a cada poucos segundos)
+    // re-renderiza a página inteira mesmo sem nenhuma mudança real, apagando o que a
+    // pessoa estiver digitando nos campos de formulário naquele instante.
+    var ultimoJson = { 'config/geral': null, 'historico/pontos': null, oficial: null, candidatosPartido: null, fiscais: null };
     function notificarTodos(snap) {
       latest = snap;
-      (docListeners['config/geral'] || []).forEach(function (cb) { cb({ exists: !!snap.config, data: function () { return snap.config; } }); });
-      (docListeners['historico/pontos'] || []).forEach(function (cb) { cb({ exists: !!snap.historico, data: function () { return snap.historico; } }); });
+      var chaveConfig = 'config/geral', chaveHistorico = 'historico/pontos';
+      var jsonConfig = JSON.stringify(snap.config);
+      if (jsonConfig !== ultimoJson[chaveConfig]) {
+        ultimoJson[chaveConfig] = jsonConfig;
+        (docListeners[chaveConfig] || []).forEach(function (cb) { cb({ exists: !!snap.config, data: function () { return snap.config; } }); });
+      }
+      var jsonHistorico = JSON.stringify(snap.historico);
+      if (jsonHistorico !== ultimoJson[chaveHistorico]) {
+        ultimoJson[chaveHistorico] = jsonHistorico;
+        (docListeners[chaveHistorico] || []).forEach(function (cb) { cb({ exists: !!snap.historico, data: function () { return snap.historico; } }); });
+      }
       ['oficial', 'candidatosPartido', 'fiscais'].forEach(function (nome) {
+        var jsonColecao = JSON.stringify(snap[nome]);
+        if (jsonColecao === ultimoJson[nome]) return;
+        ultimoJson[nome] = jsonColecao;
         var docs = (snap[nome] || []).map(function (d) { return { id: d.id, data: function () { return d.data; } }; });
         (collListeners[nome] || []).forEach(function (cb) { cb({ docs: docs }); });
       });
