@@ -31,22 +31,18 @@ var ACCESS_TOKEN = 'fabricio36222';
 var NOME_DA_ABA = 'dados';
 
 // Integração com os resultados oficiais do TSE (botão "Atualizar do TSE" na aba
-// Apuração Oficial). O TSE monta a URL de cada arquivo de resultado a partir de
-// placeholders (ambiente/ciclo/eleição/pleito) cujos valores só saem publicados
-// perto da eleição — por isso, em vez de tentar montar a URL aqui, colamos a URL
-// completa e pronta assim que ela existir. Veja o README ("Descobrindo a URL do
-// TSE") para o passo a passo de como achar essa URL usando o site oficial de
-// resultados (resultados.tse.jus.br) perto da data, ou durante um simulado oficial.
-// URL do AMBIENTE DE TESTES (simulado) do TSE — confirmada e testada em 22/09/2026,
-// devolvendo dados de verdade (sintéticos) para Deputado Estadual/ES. Funciona só durante
-// as janelas oficiais de simulado (15-17 e 22-24/09/2026, 9h-12h e 14h-17h de Brasília);
-// fora desses horários o TSE pode devolver 404/erro — é esperado, não é bug do painel.
-// QUANDO O TSE PUBLICAR A ELEIÇÃO OFICIAL DE VERDADE (perto do pleito), troque esta URL
-// pela do ambiente oficial: troque "resultados-sim.tse.jus.br/simulado/simulado2026" pelo
-// domínio/prefixo oficiais (algo como "resultados.tse.jus.br/oficial/..."), mantendo o
-// mesmo código de cargo (c0007 = Deputado Estadual) e usando o código de eleição real
-// (não mais 21272, que é só do simulado) — o TSE publica esse código perto do dia.
-var TSE_URL_RESULTADO = 'https://resultados-sim.tse.jus.br/simulado/simulado2026/ele2026/21272/dados/es/es-c0007-e021272-u.json';
+// Apuração Oficial).
+//
+// ✅ 03/10/2026: URL OFICIAL (produção, não simulado) confirmada e testada — o TSE publicou
+// o ciclo "ele2026" no config ao vivo (resultados.tse.jus.br/oficial/comum/config/ele-c.json)
+// nesta data, como esperado. A eleição Estadual-ES 2026 1º turno tem código "6259"
+// (cdt2 "6260" é só o 2º turno de Governador, não se aplica a Deputado Estadual) e o cargo
+// Deputado Estadual continua sendo "c0007". A URL abaixo já foi testada agora e devolveu o
+// candidato certo (FABRICIO PETRI, nº 36222, AGIR) com "vap":"0" — ou seja, o arquivo já
+// existe e está correto, só ainda sem votos porque a votação é só amanhã (04/10/2026) e a
+// totalização começa às 17h desse dia. Não precisa mudar mais nada — essa mesma URL vai
+// passar a trazer os votos reais a partir de amanhã à noite.
+var TSE_URL_RESULTADO = 'https://resultados.tse.jus.br/oficial/ele2026/6259/dados/es/es-c0007-e006259-u.json';
 // ==========================================================
 
 function getSheet_() {
@@ -114,12 +110,13 @@ function buscarResultadoTSE_() {
   return normalizarResultadoTSE_(raw);
 }
 
-// Campos e hierarquia confirmados batendo com um arquivo real do ambiente de testes do TSE
-// (Deputado Estadual/ES, simulado de 22/09/2026): a raiz tem "carg" (lista de cargos —
-// nesse arquivo só o próprio, já que o nome do arquivo já é por cargo); cada cargo tem
-// "agr" (agremiação — partido isolado ou federação); cada agremiação tem "par" (lista de
-// partidos, mesmo quando é federação de um partido só); cada partido tem "cand" (lista de
-// candidatos). Ou seja: carg → agr → par → cand, sempre aninhado, nunca solto na raiz.
+// Campos e hierarquia confirmados batendo com um arquivo real do TSE (testado em
+// 22/09/2026 no ambiente de simulado e em 03/10/2026 no ambiente oficial, ambos pra
+// Deputado Estadual/ES): a raiz tem "carg" (lista de cargos — nesse arquivo só o próprio,
+// já que o nome do arquivo já é por cargo); cada cargo tem "agr" (agremiação — partido
+// isolado ou federação); cada agremiação tem "par" (lista de partidos, mesmo quando é
+// federação de um partido só); cada partido tem "cand" (lista de candidatos). Ou seja:
+// carg → agr → par → cand, sempre aninhado, nunca solto na raiz.
 // Candidato: n/nm/nmu/st/vap(votos apurados)/pvap. Partido: n/sg/nm/tvtn(votos válidos
 // nominais)/tvtl(votos válidos legenda)/tvan(votos computados nominais)/tval(votos
 // computados legenda).
