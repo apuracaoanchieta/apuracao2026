@@ -2112,8 +2112,8 @@
         onSnapshot: function (cb) {
           docListeners[path] = docListeners[path] || [];
           docListeners[path].push(cb);
-          if (path === 'config/geral') cb({ exists: !!latest.config, data: function () { return latest.config; } });
-          if (path === 'historico/pontos') cb({ exists: !!latest.historico, data: function () { return latest.historico; } });
+          // Sem callback imediato com dados vazios: isso disparava o carregamento automático
+          // antes dos dados reais chegarem e recriava candidatos duplicados a cada acesso.
           return function () {};
         },
       };
@@ -2126,7 +2126,8 @@
         onSnapshot: function (cb) {
           collListeners[nome] = collListeners[nome] || [];
           collListeners[nome].push(cb);
-          cb({ docs: (latest[nome] || []).map(function (d) { return { id: d.id, data: function () { return d.data; } }; }) });
+          // Sem callback imediato com dados vazios: isso disparava o carregamento automático
+          // antes dos dados reais chegarem e recriava candidatos duplicados a cada acesso.
           return function () {};
         },
       };
